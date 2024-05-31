@@ -1,0 +1,5 @@
+name: PaginationAPI
+version: '${project.version}'
+main: beta.com.paginationapi.Main
+api-version: '1.20'
+authors: [Beta_BWJaguarr]

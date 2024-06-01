@@ -1,30 +1,30 @@
 package beta.com.paginationapi.page;
 
+import beta.com.paginationapi.itemmanager.ItemManager;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Pagination {
 
     private final int pageSize;
-    private List<ItemStack> items;
+    private ItemManager itemManager;
     private int currentPage;
 
-    public Pagination(int pageSize, List<ItemStack> items) {
+    public Pagination(int pageSize, ItemManager itemManager) {
         this.pageSize = pageSize;
-        this.items = new ArrayList<>(items);
+        this.itemManager = itemManager;
         this.currentPage = 0;
     }
 
     public List<ItemStack> getCurrentPageItems() {
         int start = currentPage * pageSize;
-        int end = Math.min((currentPage + 1) * pageSize, items.size());
-        return this.items.subList(start, end);
+        int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
+        return this.itemManager.getItems().subList(start, end);
     }
 
     public boolean hasNextPage() {
-        return (currentPage + 1) * pageSize < items.size();
+        return (currentPage + 1) * pageSize < itemManager.getItems().size();
     }
 
     public boolean hasPreviousPage() {
@@ -43,7 +43,15 @@ public class Pagination {
         }
     }
 
-    public void setItems(List<ItemStack> items) {
-        this.items = new ArrayList<>(items);
+    public boolean isPageEmpty() {
+        int start = currentPage * pageSize;
+        int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
+        return this.itemManager.getItems().subList(start, end).isEmpty();
+    }
+
+    public boolean isPageFull() {
+        int start = currentPage * pageSize;
+        int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
+        return this.itemManager.getItems().subList(start, end).size() == pageSize;
     }
 }

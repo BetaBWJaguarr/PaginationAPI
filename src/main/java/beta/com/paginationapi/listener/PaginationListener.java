@@ -2,7 +2,10 @@ package beta.com.paginationapi.listener;
 
 import beta.com.paginationapi.itemmanager.ItemManager;
 import beta.com.paginationapi.page.Pagination;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.UUID;
 
 public class PaginationListener {
 
@@ -14,15 +17,17 @@ public class PaginationListener {
         this.itemManager = itemManager;
     }
 
-    public void onNextPage() {
-        if (pagination.hasNextPage()) {
-            pagination.nextPage();
+    public void onNextPage(Player player) {
+        UUID playerId = player.getUniqueId();
+        if (pagination.hasNextPage(playerId)) {
+            pagination.nextPage(playerId);
         }
     }
 
-    public void onPreviousPage() {
-        if (pagination.hasPreviousPage()) {
-            pagination.previousPage();
+    public void onPreviousPage(Player player) {
+        UUID playerId = player.getUniqueId();
+        if (pagination.hasPreviousPage(playerId)) {
+            pagination.previousPage(playerId);
         }
     }
 

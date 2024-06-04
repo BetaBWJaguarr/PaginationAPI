@@ -15,14 +15,19 @@ public class Pagination {
     private int currentPage;
     private Map<UUID, Integer> playerPages;
 
-    public Pagination(int pageSize, ItemManager itemManager, Map<UUID, Integer> playerPages) {
+    public ItemManager getItemManager() {
+        return this.itemManager;
+    }
+
+    public Pagination(int pageSize, ItemManager itemManager) {
         this.pageSize = pageSize;
         this.itemManager = itemManager;
         this.playerPages = new HashMap<>();
         this.currentPage = 0;
     }
 
-    public List<ItemStack> getCurrentPageItems() {
+    public List<ItemStack> getCurrentPageItems(UUID playerId) {
+        int currentPage = getCurrentPageForPlayer(playerId);
         int start = currentPage * pageSize;
         int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
         return this.itemManager.getItems().subList(start, end);
@@ -41,14 +46,16 @@ public class Pagination {
     }
 
     public void nextPage(UUID playerId) {
+        int currentPage = this.playerPages.getOrDefault(playerId, 0);
         if (hasNextPage(playerId)) {
-            this.playerPages.put(playerId, this.playerPages.get(playerId) + 1);
+            this.playerPages.put(playerId, currentPage + 1);
         }
     }
 
     public void previousPage(UUID playerId) {
+        int currentPage = this.playerPages.getOrDefault(playerId, 0);
         if (hasPreviousPage(playerId)) {
-            this.playerPages.put(playerId, this.playerPages.get(playerId) - 1);
+            this.playerPages.put(playerId, currentPage - 1);
         }
     }
 

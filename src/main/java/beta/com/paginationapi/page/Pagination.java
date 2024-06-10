@@ -80,4 +80,15 @@ public class Pagination {
         int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
         return this.itemManager.getItems().subList(start, end).size() == pageSize;
     }
+
+    public void openPageForPlayer(UUID playerId, int pageNumber) {
+        if (pageNumber < 0 || pageNumber * pageSize >= itemManager.getItems().size()) {
+            return;
+        }
+        setPageForPlayer(playerId, pageNumber);
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
 }

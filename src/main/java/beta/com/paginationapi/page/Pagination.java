@@ -33,6 +33,12 @@ public class Pagination {
         return this.itemManager.getItems().subList(start, end);
     }
 
+    public void rememberPages(UUID playerId, boolean remember) {
+        if (!remember) {
+            this.playerPages.put(playerId, 0);
+        }
+    }
+
     public void setPageForPlayer(UUID playerId, int page) {
         this.playerPages.put(playerId, page);
     }

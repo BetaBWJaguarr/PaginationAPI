@@ -1,6 +1,6 @@
 package beta.com.paginationapi.page;
 
-import beta.com.paginationapi.itemmanager.ItemManager;
+import beta.com.paginationapi.itemmanager.service.ItemManagerService;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -11,15 +11,11 @@ import java.util.UUID;
 public class Pagination {
 
     private final int pageSize;
-    private ItemManager itemManager;
+    private ItemManagerService itemManager;
     private int currentPage;
     private Map<UUID, Integer> playerPages;
 
-    public ItemManager getItemManager() {
-        return this.itemManager;
-    }
-
-    public Pagination(int pageSize, ItemManager itemManager) {
+    public Pagination(int pageSize, ItemManagerService itemManager) {
         this.pageSize = pageSize;
         this.itemManager = itemManager;
         this.playerPages = new HashMap<>();

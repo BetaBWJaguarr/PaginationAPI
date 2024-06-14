@@ -1,7 +1,7 @@
 package beta.com.paginationapi.search;
 
-import beta.com.paginationapi.itemmanager.ItemManager;
-import beta.com.paginationapi.page.Pagination;
+import beta.com.paginationapi.itemmanager.service.ItemManagerService;
+import beta.com.paginationapi.page.service.PaginationService;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,11 +17,11 @@ import java.util.UUID;
 
 public class SearchFunction implements Listener {
 
-    private final Pagination pagination;
-    private final ItemManager itemManager;
+    private final PaginationService pagination;
+    private final ItemManagerService itemManager;
     private UUID playerInSearchMode;
 
-    public SearchFunction(Pagination pagination, ItemManager itemManager) {
+    public SearchFunction(PaginationService pagination, ItemManagerService itemManager) {
         this.pagination = pagination;
         this.itemManager = itemManager;
     }

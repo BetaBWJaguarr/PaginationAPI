@@ -1,7 +1,7 @@
 package beta.com.paginationapi.listener;
 
-import beta.com.paginationapi.itemmanager.ItemManager;
-import beta.com.paginationapi.page.Pagination;
+import beta.com.paginationapi.itemmanager.service.ItemManagerService;
+import beta.com.paginationapi.page.service.PaginationService;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,10 +9,10 @@ import java.util.UUID;
 
 public class PaginationListener {
 
-    private final Pagination pagination;
-    private final ItemManager itemManager;
+    private final PaginationService pagination;
+    private final ItemManagerService itemManager;
 
-    public PaginationListener(Pagination pagination,ItemManager itemManager) {
+    public PaginationListener(PaginationService pagination, ItemManagerService itemManager) {
         this.pagination = pagination;
         this.itemManager = itemManager;
     }

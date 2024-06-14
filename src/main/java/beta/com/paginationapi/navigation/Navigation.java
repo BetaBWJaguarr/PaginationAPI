@@ -1,7 +1,7 @@
 package beta.com.paginationapi.navigation;
 
 
-import beta.com.paginationapi.page.Pagination;
+import beta.com.paginationapi.page.service.PaginationService;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public class Navigation {
 
-    private final Pagination pagination;
+    private final PaginationService pagination;
 
-    public Navigation(Pagination pagination) {
+    public Navigation(PaginationService pagination) {
         this.pagination = pagination;
     }
 

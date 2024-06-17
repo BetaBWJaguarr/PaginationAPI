@@ -1,7 +1,7 @@
 package beta.com.paginationapi.page.service;
 
 
-import beta.com.paginationapi.itemmanager.ItemManager;
+import beta.com.paginationapi.itemmanager.service.ItemManagerService;
 import beta.com.paginationapi.page.Pagination;
 import org.bukkit.inventory.ItemStack;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface PaginationService {
 
 
-    ItemManager getItemManager();
+    ItemManagerService getItemManager();
 
     Pagination createPagination();
 

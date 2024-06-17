@@ -1,7 +1,6 @@
 package beta.com.paginationapi.page.service.impl;
 
 
-import beta.com.paginationapi.itemmanager.ItemManager;
 import beta.com.paginationapi.itemmanager.service.ItemManagerService;
 import beta.com.paginationapi.page.Pagination;
 import beta.com.paginationapi.page.service.PaginationService;
@@ -25,8 +24,8 @@ public class PaginationServiceImpl implements PaginationService {
 
 
     @Override
-    public ItemManager getItemManager() {
-        return itemManager.getItemManager();
+    public ItemManagerService getItemManager() {
+        return itemManager;
     }
 
     @Override

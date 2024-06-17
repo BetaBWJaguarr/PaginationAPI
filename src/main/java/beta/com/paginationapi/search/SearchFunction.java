@@ -12,7 +12,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.List;
 import java.util.UUID;
 
 public class SearchFunction implements Listener {
@@ -74,34 +73,19 @@ public class SearchFunction implements Listener {
                     ItemStack item = itemManager.getItems().get(i);
                     if (item.hasItemMeta()) {
                         ItemMeta meta = item.getItemMeta();
-                        if (currentSearchType == SearchType.NAME && meta.hasDisplayName()) {
-                            String displayName = ChatColor.stripColor(meta.getDisplayName()).toLowerCase();
-                            if (isPartialMatch(displayName, message)) {
-                                int pageNumber = i / pagination.getPageSize();
-                                pagination.openPageForPlayer(event.getPlayer().getUniqueId(), pageNumber);
-                                found = true;
-                                break;
-                            }
-                        } else if (currentSearchType == SearchType.LORE && meta.hasLore()) {
-                            List<String> lore = meta.getLore();
-                            for (String loreLine : lore) {
-                                if (ChatColor.stripColor(loreLine).toLowerCase().contains(message)) {
-                                    int pageNumber = i / pagination.getPageSize();
-                                    pagination.openPageForPlayer(event.getPlayer().getUniqueId(), pageNumber);
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (found) break;
+                        String target = currentSearchType == SearchType.NAME ? meta.hasDisplayName() ? ChatColor.stripColor(meta.getDisplayName()).toLowerCase() : "" :
+                                meta.hasLore() ? String.join(" ", meta.getLore()).toLowerCase() : "";
+
+                        if (!target.isEmpty() && isPartialMatch(target, message)) {
+                            int pageNumber = i / pagination.getPageSize();
+                            pagination.openPageForPlayer(event.getPlayer().getUniqueId(), pageNumber);
+                            found = true;
+                            break;
                         }
                     }
                 }
 
-                if (found) {
-                    event.getPlayer().sendMessage(ChatColor.GREEN + "Result found. Please open menu again!");
-                } else {
-                    event.getPlayer().sendMessage(ChatColor.RED + "Result not found!");
-                }
+                event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open menu again!" : ChatColor.RED + "Result not found!");
 
                 currentSearchType = SearchType.NONE;
                 playerInSearchMode = null;

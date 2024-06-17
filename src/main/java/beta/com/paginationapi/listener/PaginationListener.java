@@ -17,25 +17,22 @@ public class PaginationListener {
         this.itemManager = itemManager;
     }
 
-    public void onNextPage(Player player) {
+    public void onPageAction(Player player, boolean nextPage) {
         UUID playerId = player.getUniqueId();
-        if (pagination.hasNextPage(playerId)) {
-            pagination.nextPage(playerId);
+        if (nextPage ? pagination.hasNextPage(playerId) : pagination.hasPreviousPage(playerId)) {
+            if (nextPage) {
+                pagination.nextPage(playerId);
+            } else {
+                pagination.previousPage(playerId);
+            }
         }
     }
 
-    public void onPreviousPage(Player player) {
-        UUID playerId = player.getUniqueId();
-        if (pagination.hasPreviousPage(playerId)) {
-            pagination.previousPage(playerId);
+    public void onItemAction(ItemStack item, boolean addItem) {
+        if (addItem) {
+            itemManager.addItem(item);
+        } else {
+            itemManager.removeItem(item);
         }
-    }
-
-    public void onAddItem(ItemStack item) {
-        itemManager.addItem(item);
-    }
-
-    public void onRemoveItem(ItemStack item) {
-        itemManager.removeItem(item);
     }
 }

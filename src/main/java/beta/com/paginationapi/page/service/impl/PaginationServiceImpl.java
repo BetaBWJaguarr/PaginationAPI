@@ -1,6 +1,6 @@
 package beta.com.paginationapi.page.service.impl;
 
-
+import beta.com.paginationapi.errorevents.HandleExceptions;
 import beta.com.paginationapi.itemmanager.service.ItemManagerService;
 import beta.com.paginationapi.page.Pagination;
 import beta.com.paginationapi.page.service.PaginationService;
@@ -12,13 +12,18 @@ import java.util.UUID;
 public class PaginationServiceImpl implements PaginationService {
 
     private Pagination pagination;
-
-    private int Pagesize;
-
+    private int pageSize;
     private ItemManagerService itemManager;
+    private HandleExceptions handleExceptions = new HandleExceptions();
 
-    public PaginationServiceImpl(int pagesize,ItemManagerService itemManager) {
-        Pagesize = pagesize;
+    public PaginationServiceImpl(int pageSize, ItemManagerService itemManager) {
+        if (pageSize <= 0) {
+            handleExceptions.handle(new IllegalArgumentException("Page size must be greater than zero"), this.getClass().getSimpleName(), "PaginationServiceImpl");
+        }
+        if (itemManager == null) {
+            handleExceptions.handle(new IllegalArgumentException("ItemManagerService cannot be null"), this.getClass().getSimpleName(), "PaginationServiceImpl");
+        }
+        this.pageSize = pageSize;
         this.itemManager = itemManager;
     }
 
@@ -30,10 +35,15 @@ public class PaginationServiceImpl implements PaginationService {
 
     @Override
     public Pagination createPagination() {
-        if (pagination == null) {
-            pagination = new Pagination(Pagesize,itemManager);
+        try {
+            if (pagination == null) {
+                pagination = new Pagination(pageSize, itemManager);
+            }
+            return pagination;
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "createPagination");
+            return null;
         }
-        return pagination;
     }
 
     @Override
@@ -43,66 +53,174 @@ public class PaginationServiceImpl implements PaginationService {
 
     @Override
     public List<ItemStack> getCurrentPageItems(UUID playerId) {
-        return pagination.getCurrentPageItems(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getCurrentPageItems");
+            return null;
+        }
+        try {
+            return pagination.getCurrentPageItems(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "getCurrentPageItems");
+            return null;
+        }
     }
 
     @Override
     public void rememberPages(UUID playerId, boolean remember) {
-        pagination.rememberPages(playerId, remember);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "rememberPages");
+            return;
+        }
+        try {
+            pagination.rememberPages(playerId, remember);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "rememberPages");
+        }
     }
 
     @Override
     public void setPageForPlayer(UUID playerId, int page) {
-        pagination.setPageForPlayer(playerId, page);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "setPageForPlayer");
+            return;
+        }
+        if (page < 0) {
+            handleExceptions.handle(new IllegalArgumentException("Page number cannot be negative"), this.getClass().getSimpleName(), "setPageForPlayer");
+            return;
+        }
+        try {
+            pagination.setPageForPlayer(playerId, page);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "setPageForPlayer");
+        }
     }
 
     @Override
     public int getPageForPlayer(UUID playerId) {
-        return pagination.getPageForPlayer(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getPageForPlayer");
+            return 0;
+        }
+        try {
+            return pagination.getPageForPlayer(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "getPageForPlayer");
+            return 0;
+        }
     }
 
     @Override
     public int getCurrentPageForPlayer(UUID playerId) {
-        return pagination.getCurrentPageForPlayer(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getCurrentPageForPlayer");
+            return 0;
+        }
+        try {
+            return pagination.getCurrentPageForPlayer(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "getCurrentPageForPlayer");
+            return 0;
+        }
     }
 
     @Override
     public void nextPage(UUID playerId) {
-        pagination.nextPage(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "nextPage");
+            return;
+        }
+        try {
+            pagination.nextPage(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "nextPage");
+        }
     }
 
     @Override
     public void previousPage(UUID playerId) {
-        pagination.previousPage(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "previousPage");
+            return;
+        }
+        try {
+            pagination.previousPage(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "previousPage");
+        }
     }
 
     @Override
     public boolean hasNextPage(UUID playerId) {
-        return pagination.hasNextPage(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "hasNextPage");
+            return false;
+        }
+        try {
+            return pagination.hasNextPage(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "hasNextPage");
+            return false;
+        }
     }
 
     @Override
     public boolean hasPreviousPage(UUID playerId) {
-        return pagination.hasPreviousPage(playerId);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "hasPreviousPage");
+            return false;
+        }
+        try {
+            return pagination.hasPreviousPage(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "hasPreviousPage");
+            return false;
+        }
     }
 
     @Override
     public boolean isPageEmpty() {
-        return pagination.isPageEmpty();
+        try {
+            return pagination.isPageEmpty();
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "isPageEmpty");
+            return false;
+        }
     }
 
     @Override
     public boolean isPageFull() {
-        return pagination.isPageFull();
+        try {
+            return pagination.isPageFull();
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "isPageFull");
+            return false;
+        }
     }
 
     @Override
     public void openPageForPlayer(UUID playerId, int pageNumber) {
-        pagination.openPageForPlayer(playerId, pageNumber);
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "openPageForPlayer");
+            return;
+        }
+        if (pageNumber < 0) {
+            handleExceptions.handle(new IllegalArgumentException("Page number cannot be negative"), this.getClass().getSimpleName(), "openPageForPlayer");
+            return;
+        }
+        try {
+            pagination.openPageForPlayer(playerId, pageNumber);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "openPageForPlayer");
+        }
     }
 
     @Override
     public int getPageSize() {
-        return pagination.getPageSize();
+        try {
+            return pagination.getPageSize();
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "getPageSize");
+            return 0;
+        }
     }
 }

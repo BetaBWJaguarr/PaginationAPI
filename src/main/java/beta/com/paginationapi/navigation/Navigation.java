@@ -22,29 +22,21 @@ public class Navigation {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "createPageButton");
             return null;
         }
-        if ((isNext ? pagination.hasNextPage(playerId) && pagination.isPageFull() : pagination.hasPreviousPage(playerId) && !pagination.isPageEmpty())) {
-            ItemStack pageButton = new ItemStack(Material.ARROW);
-            ItemMeta meta = pageButton.getItemMeta();
-            meta.setDisplayName(isNext ? "Next Page" : "Previous Page");
-            pageButton.setItemMeta(meta);
-            return pageButton;
-        }
-        return null;
+        boolean condition = isNext ? pagination.hasNextPage(playerId) && pagination.isPageFull() : pagination.hasPreviousPage(playerId) && !pagination.isPageEmpty();
+        if (!condition) return null;
+
+        ItemStack pageButton = new ItemStack(Material.ARROW);
+        ItemMeta meta = pageButton.getItemMeta();
+        meta.setDisplayName(isNext ? "Next Page" : "Previous Page");
+        pageButton.setItemMeta(meta);
+        return pageButton;
     }
 
     public ItemStack createNextPageButton(UUID playerId) {
-        if (playerId == null) {
-            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "createNextPageButton");
-            return null;
-        }
         return createPageButton(playerId, true);
     }
 
     public ItemStack createPreviousPageButton(UUID playerId) {
-        if (playerId == null) {
-            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "createPreviousPageButton");
-            return null;
-        }
         return createPageButton(playerId, false);
     }
 }

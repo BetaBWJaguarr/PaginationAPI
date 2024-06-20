@@ -12,66 +12,63 @@ public class Pagination {
     private final int pageSize;
     private ItemManagerService itemManager;
     private Map<UUID, Integer> playerPages = new HashMap<>();
-    private int currentPage = 0;
 
     public Pagination(int pageSize, ItemManagerService itemManager) {
         this.pageSize = pageSize;
         this.itemManager = itemManager;
     }
 
+    private int getPageStart(int page) {
+        return page * pageSize;
+    }
+
+    private int getPageEnd(int page) {
+        return Math.min((page + 1) * pageSize, itemManager.getItems().size());
+    }
+
     public List<ItemStack> getCurrentPageItems(UUID playerId) {
-        int currentPage = getCurrentPageForPlayer(playerId);
-        int start = currentPage * pageSize;
-        int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
-        return this.itemManager.getItems().subList(start, end);
+        int page = playerPages.getOrDefault(playerId, 0);
+        return itemManager.getItems().subList(getPageStart(page), getPageEnd(page));
     }
 
     public void rememberPages(UUID playerId, boolean remember) {
-        if (!remember) this.playerPages.put(playerId, 0);
+        if (!remember) playerPages.put(playerId, 0);
     }
 
     public void setPageForPlayer(UUID playerId, int page) {
-        this.playerPages.put(playerId, page);
+        playerPages.put(playerId, page);
     }
 
     public int getPageForPlayer(UUID playerId) {
-        return this.playerPages.getOrDefault(playerId, 0);
-    }
-
-    public int getCurrentPageForPlayer(UUID playerId) {
-        return this.playerPages.getOrDefault(playerId, 0);
+        return playerPages.getOrDefault(playerId, 0);
     }
 
     public void nextPage(UUID playerId) {
-        if (hasNextPage(playerId)) this.playerPages.put(playerId, getCurrentPageForPlayer(playerId) + 1);
+        if (hasNextPage(playerId)) playerPages.put(playerId, getPageForPlayer(playerId) + 1);
     }
 
     public void previousPage(UUID playerId) {
-        if (hasPreviousPage(playerId)) this.playerPages.put(playerId, getCurrentPageForPlayer(playerId) - 1);
+        if (hasPreviousPage(playerId)) playerPages.put(playerId, getPageForPlayer(playerId) - 1);
     }
 
     public boolean hasNextPage(UUID playerId) {
-        return (getCurrentPageForPlayer(playerId) + 1) * pageSize < itemManager.getItems().size();
+        return getPageEnd(getPageForPlayer(playerId)) < itemManager.getItems().size();
     }
 
     public boolean hasPreviousPage(UUID playerId) {
-        return getCurrentPageForPlayer(playerId) > 0;
+        return getPageForPlayer(playerId) > 0;
     }
 
     public boolean isPageEmpty() {
-        int start = currentPage * pageSize;
-        int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
-        return this.itemManager.getItems().subList(start, end).isEmpty();
+        return itemManager.getItems().subList(getPageStart(0), getPageEnd(0)).isEmpty();
     }
 
     public boolean isPageFull() {
-        int start = currentPage * pageSize;
-        int end = Math.min((currentPage + 1) * pageSize, itemManager.getItems().size());
-        return this.itemManager.getItems().subList(start, end).size() == pageSize;
+        return itemManager.getItems().subList(getPageStart(0), getPageEnd(0)).size() == pageSize;
     }
 
     public void openPageForPlayer(UUID playerId, int pageNumber) {
-        if (pageNumber >= 0 && pageNumber * pageSize < itemManager.getItems().size()) setPageForPlayer(playerId, pageNumber);
+        if (pageNumber >= 0 && getPageStart(pageNumber) < itemManager.getItems().size()) setPageForPlayer(playerId, pageNumber);
     }
 
     public int getPageSize() {

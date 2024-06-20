@@ -116,7 +116,7 @@ public class PaginationServiceImpl implements PaginationService {
             return 0;
         }
         try {
-            return pagination.getCurrentPageForPlayer(playerId);
+            return pagination.getPageForPlayer(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "getCurrentPageForPlayer");
             return 0;

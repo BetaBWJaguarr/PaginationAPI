@@ -19,6 +19,7 @@ public class SearchFunction implements Listener {
     private final PaginationService pagination;
     private final ItemManagerService itemManager;
     private UUID playerInSearchMode;
+    private SearchType currentSearchType = SearchType.NONE;
 
     public SearchFunction(PaginationService pagination, ItemManagerService itemManager) {
         this.pagination = pagination;
@@ -33,73 +34,62 @@ public class SearchFunction implements Listener {
         return searchButton;
     }
 
-    private SearchType currentSearchType = SearchType.NONE;
-
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
-
         Player player = (Player) event.getWhoClicked();
-        ItemStack clickedItem = event.getCurrentItem();
-
-        if (clickedItem != null && clickedItem.getType() == Material.COMPASS) {
+        if (event.getCurrentItem() != null && event.getCurrentItem().getType() == Material.COMPASS) {
             playerInSearchMode = player.getUniqueId();
             player.closeInventory();
-            player.sendMessage(ChatColor.GREEN + "Please type 'name' to search by item name or 'lore' to search by item lore.");
+            player.sendMessage(ChatColor.GREEN + "Type 'name' to search by item name or 'lore' to search by item lore.");
         }
     }
-
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        if (playerInSearchMode != null && event.getPlayer().getUniqueId().equals(playerInSearchMode)) {
-            event.setCancelled(true);
-            String message = event.getMessage().toLowerCase();
+        if (playerInSearchMode == null || !event.getPlayer().getUniqueId().equals(playerInSearchMode)) return;
 
-            if (currentSearchType == SearchType.NONE) {
-                if (message.equals("name")) {
-                    currentSearchType = SearchType.NAME;
-                    event.getPlayer().sendMessage(ChatColor.GREEN + "Please type the item name in the chat.");
-                } else if (message.equals("lore")) {
-                    currentSearchType = SearchType.LORE;
-                    event.getPlayer().sendMessage(ChatColor.GREEN + "Please type the item lore in the chat.");
-                } else {
-                    event.getPlayer().sendMessage(ChatColor.RED + "Invalid search type! Please type 'name' or 'lore'.");
-                }
+        event.setCancelled(true);
+        String message = event.getMessage().toLowerCase();
+
+        if (currentSearchType == SearchType.NONE) {
+            if (message.equals("name") || message.equals("lore")) {
+                currentSearchType = message.equals("name") ? SearchType.NAME : SearchType.LORE;
+                event.getPlayer().sendMessage(ChatColor.GREEN + "Type the item " + currentSearchType.name().toLowerCase() + " in the chat.");
             } else {
-                boolean found = false;
-
-                for (int i = 0; i < itemManager.getItems().size(); i++) {
-                    ItemStack item = itemManager.getItems().get(i);
-                    if (item.hasItemMeta()) {
-                        ItemMeta meta = item.getItemMeta();
-                        String target = currentSearchType == SearchType.NAME ? meta.hasDisplayName() ? ChatColor.stripColor(meta.getDisplayName()).toLowerCase() : "" :
-                                meta.hasLore() ? String.join(" ", meta.getLore()).toLowerCase() : "";
-
-                        if (!target.isEmpty() && isPartialMatch(target, message)) {
-                            int pageNumber = i / pagination.getPageSize();
-                            pagination.openPageForPlayer(event.getPlayer().getUniqueId(), pageNumber);
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open menu again!" : ChatColor.RED + "Result not found!");
-
-                currentSearchType = SearchType.NONE;
-                playerInSearchMode = null;
+                event.getPlayer().sendMessage(ChatColor.RED + "Invalid search type! Type 'name' or 'lore'.");
             }
+        } else {
+            boolean found = searchItems(event.getPlayer(), message);
+            event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open the menu again!" : ChatColor.RED + "Result not found!");
+            resetSearch();
         }
     }
 
-    private boolean isPartialMatch(String str1, String str2) {
-        String[] words = str1.split(" ");
-        for (String word : words) {
-            if (word.equals(str2)) {
-                return true;
+    private boolean searchItems(Player player, String query) {
+        for (int i = 0; i < itemManager.getItems().size(); i++) {
+            ItemStack item = itemManager.getItems().get(i);
+            if (item.hasItemMeta()) {
+                ItemMeta meta = item.getItemMeta();
+                String target = currentSearchType == SearchType.NAME ? meta.getDisplayName() : String.join(" ", meta.getLore());
+                if (target != null && isPartialMatch(ChatColor.stripColor(target).toLowerCase(), query)) {
+                    pagination.openPageForPlayer(player.getUniqueId(), i / pagination.getPageSize());
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    private boolean isPartialMatch(String str1, String str2) {
+        for (String word : str1.split(" ")) {
+            if (word.equals(str2)) return true;
+        }
+        return false;
+    }
+
+    private void resetSearch() {
+        currentSearchType = SearchType.NONE;
+        playerInSearchMode = null;
     }
 }

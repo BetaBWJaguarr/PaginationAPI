@@ -1,4 +1,4 @@
-package beta.com.paginationapi.page.utils;
+package beta.com.paginationapi.sortmanager.utils;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,8 +28,8 @@ public class SortFilterManager<T> {
     }
 
     public List<T> getPage(List<T> items, int pageNumber, int pageSize) {
-        if (pageNumber <= 0) {
-            throw new IllegalArgumentException("Page number must be greater than 0");
+        if (pageNumber <= 0 || pageSize <= 0) {
+            throw new IllegalArgumentException("Page number and page size must be greater than 0");
         }
         int start = (pageNumber - 1) * pageSize;
         if (start >= items.size()) {

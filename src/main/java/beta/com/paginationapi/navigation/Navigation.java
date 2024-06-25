@@ -22,7 +22,7 @@ public class Navigation {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "createPageButton");
             return null;
         }
-        boolean condition = isNext ? pagination.hasNextPage(playerId) && pagination.isPageFull() : pagination.hasPreviousPage(playerId) && !pagination.isPageEmpty();
+        boolean condition = isNext ? pagination.hasNextPage(playerId) && pagination.isPageFull(playerId) : pagination.hasPreviousPage(playerId) && !pagination.isPageEmpty(playerId);
         if (!condition) return null;
 
         ItemStack pageButton = new ItemStack(Material.ARROW);

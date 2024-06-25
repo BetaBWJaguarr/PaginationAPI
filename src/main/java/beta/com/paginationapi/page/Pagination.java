@@ -10,8 +10,9 @@ import java.util.UUID;
 
 public class Pagination {
     private final int pageSize;
-    private ItemManagerService itemManager;
-    private Map<UUID, Integer> playerPages = new HashMap<>();
+    private final ItemManagerService itemManager;
+    private final Map<UUID, Integer> playerPages = new HashMap<>();
+    private final Map<UUID, Boolean> activeStatus = new HashMap<>();
 
     public Pagination(int pageSize, ItemManagerService itemManager) {
         this.pageSize = pageSize;
@@ -73,5 +74,19 @@ public class Pagination {
 
     public int getPageSize() {
         return pageSize;
+    }
+
+    public void setActive(UUID playerId) {
+        playerPages.put(playerId, 0);
+        activeStatus.put(playerId, true);
+    }
+
+    public boolean isActive(UUID playerId) {
+        return activeStatus.getOrDefault(playerId, false);
+    }
+
+    public void close(UUID playerId) {
+        playerPages.remove(playerId);
+        activeStatus.remove(playerId);
     }
 }

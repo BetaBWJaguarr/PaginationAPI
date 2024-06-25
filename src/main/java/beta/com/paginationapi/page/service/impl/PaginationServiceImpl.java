@@ -6,73 +6,144 @@ import beta.com.paginationapi.page.Pagination;
 import beta.com.paginationapi.page.service.PaginationService;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PaginationServiceImpl implements PaginationService {
 
-    private Pagination pagination;
-    private int pageSize;
-    private ItemManagerService itemManager;
-    private HandleExceptions handleExceptions = new HandleExceptions();
+    private final Map<UUID, Pagination> menus = new HashMap<>();
+    private final Map<UUID, UUID> activeMenus = new HashMap<>();
+    private final ItemManagerService itemManager;
+    private final HandleExceptions handleExceptions = new HandleExceptions();
 
-    public PaginationServiceImpl(int pageSize, ItemManagerService itemManager) {
-        if (pageSize <= 0) {
-            handleExceptions.handle(new IllegalArgumentException("Page size must be greater than zero"), this.getClass().getSimpleName(), "PaginationServiceImpl");
-        }
-        if (itemManager == null) {
-            handleExceptions.handle(new IllegalArgumentException("ItemManagerService cannot be null"), this.getClass().getSimpleName(), "PaginationServiceImpl");
-        }
-        this.pageSize = pageSize;
+    public PaginationServiceImpl(ItemManagerService itemManager) {
         this.itemManager = itemManager;
     }
 
-
     @Override
-    public ItemManagerService getItemManager() {
-        return itemManager;
-    }
+    public Pagination createMenu(int pageSize, ItemManagerService itemManager) {
 
-    @Override
-    public Pagination createPagination() {
+        if (pageSize <= 0) {
+            handleExceptions.handle(new IllegalArgumentException("Page size must be greater than 0"), this.getClass().getSimpleName(), "createMenu");
+        }
+
+        if (itemManager == null) {
+            handleExceptions.handle(new IllegalArgumentException("Item manager cannot be null"), this.getClass().getSimpleName(), "createMenu");
+        }
+
         try {
-            if (pagination == null) {
-                pagination = new Pagination(pageSize, itemManager);
-            }
+            UUID menuId = UUID.randomUUID();
+            Pagination pagination = new Pagination(pageSize, itemManager);
+            menus.put(menuId, pagination);
             return pagination;
         } catch (Exception e) {
-            handleExceptions.handle(e, this.getClass().getSimpleName(), "createPagination");
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "createMenu");
             return null;
         }
     }
 
     @Override
-    public Pagination getPagination() {
-        return null;
+    public Pagination getMenu(UUID menuId) {
+        if (menuId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Menu ID cannot be null"), this.getClass().getSimpleName(), "getMenu");
+            return null;
+        }
+
+        try {
+            return menus.get(menuId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "getMenu");
+            return null;
+        }
+    }
+
+    @Override
+    public void setActiveMenu(UUID playerId, UUID menuId) {
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "setActiveMenu");
+            return;
+        }
+
+        if (menuId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Menu ID cannot be null"), this.getClass().getSimpleName(), "setActiveMenu");
+            return;
+        }
+
+        try {
+            activeMenus.put(playerId, menuId);
+            menus.get(menuId).setActive(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "setActiveMenu");
+        }
+    }
+
+    @Override
+    public void closeMenu(UUID playerId) {
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "closeMenu");
+            return;
+        }
+        try {
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "closeMenu");
+            }
+            menus.get(activeMenuId).close(playerId);
+            activeMenus.remove(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "closeMenu");
+        }
+    }
+
+    @Override
+    public UUID getActiveMenu(UUID playerId) {
+
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getActiveMenu");
+            return null;
+        }
+        try {
+            return activeMenus.get(playerId);
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "getActiveMenu");
+            return null;
+        }
     }
 
     @Override
     public List<ItemStack> getCurrentPageItems(UUID playerId) {
+
         if (playerId == null) {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getCurrentPageItems");
-            return null;
+            return Collections.emptyList();
         }
         try {
-            return pagination.getCurrentPageItems(playerId);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "getCurrentPageItems");
+                return Collections.emptyList();
+            }
+            return menus.get(activeMenuId).getCurrentPageItems(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "getCurrentPageItems");
-            return null;
+            return Collections.emptyList();
         }
     }
 
     @Override
     public void rememberPages(UUID playerId, boolean remember) {
+
         if (playerId == null) {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "rememberPages");
             return;
         }
+
         try {
-            pagination.rememberPages(playerId, remember);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "rememberPages");
+                return;
+            }
+            menus.get(activeMenuId).rememberPages(playerId, remember);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "rememberPages");
         }
@@ -84,12 +155,20 @@ public class PaginationServiceImpl implements PaginationService {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "setPageForPlayer");
             return;
         }
+
         if (page < 0) {
             handleExceptions.handle(new IllegalArgumentException("Page number cannot be negative"), this.getClass().getSimpleName(), "setPageForPlayer");
             return;
         }
+
         try {
-            pagination.setPageForPlayer(playerId, page);
+            UUID activeMenuId = activeMenus.get(playerId);
+
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "setPageForPlayer");
+                return;
+            }
+            menus.get(activeMenuId).setPageForPlayer(playerId, page);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "setPageForPlayer");
         }
@@ -101,24 +180,16 @@ public class PaginationServiceImpl implements PaginationService {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getPageForPlayer");
             return 0;
         }
+
         try {
-            return pagination.getPageForPlayer(playerId);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "getPageForPlayer");
+                return 0;
+            }
+            return menus.get(activeMenuId).getPageForPlayer(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "getPageForPlayer");
-            return 0;
-        }
-    }
-
-    @Override
-    public int getCurrentPageForPlayer(UUID playerId) {
-        if (playerId == null) {
-            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "getCurrentPageForPlayer");
-            return 0;
-        }
-        try {
-            return pagination.getPageForPlayer(playerId);
-        } catch (Exception e) {
-            handleExceptions.handle(e, this.getClass().getSimpleName(), "getCurrentPageForPlayer");
             return 0;
         }
     }
@@ -129,8 +200,15 @@ public class PaginationServiceImpl implements PaginationService {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "nextPage");
             return;
         }
+
         try {
-            pagination.nextPage(playerId);
+            UUID activeMenuId = activeMenus.get(playerId);
+
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "nextPage");
+                return;
+            }
+            menus.get(activeMenuId).nextPage(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "nextPage");
         }
@@ -138,12 +216,18 @@ public class PaginationServiceImpl implements PaginationService {
 
     @Override
     public void previousPage(UUID playerId) {
-        if (playerId == null) {
-            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "previousPage");
-            return;
-        }
+         if (playerId == null) {
+             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "previousPage");
+             return;
+         }
+
         try {
-            pagination.previousPage(playerId);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "previousPage");
+                return;
+            }
+            menus.get(activeMenuId).previousPage(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "previousPage");
         }
@@ -155,8 +239,13 @@ public class PaginationServiceImpl implements PaginationService {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "hasNextPage");
             return false;
         }
+
         try {
-            return pagination.hasNextPage(playerId);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                return false;
+            }
+            return menus.get(activeMenuId).hasNextPage(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "hasNextPage");
             return false;
@@ -169,8 +258,14 @@ public class PaginationServiceImpl implements PaginationService {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "hasPreviousPage");
             return false;
         }
+
         try {
-            return pagination.hasPreviousPage(playerId);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "hasPreviousPage");
+                return false;
+            }
+            return menus.get(activeMenuId).hasPreviousPage(playerId);
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "hasPreviousPage");
             return false;
@@ -178,19 +273,38 @@ public class PaginationServiceImpl implements PaginationService {
     }
 
     @Override
-    public boolean isPageEmpty() {
+    public boolean isPageEmpty(UUID playerId) {
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "isPageEmpty");
+            return true;
+        }
+
         try {
-            return pagination.isPageEmpty();
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                return true;
+            }
+            return menus.get(activeMenuId).isPageEmpty();
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "isPageEmpty");
-            return false;
+            return true;
         }
     }
 
     @Override
-    public boolean isPageFull() {
+    public boolean isPageFull(UUID playerId) {
+        if (playerId == null) {
+            handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "isPageFull");
+            return false;
+        }
+
         try {
-            return pagination.isPageFull();
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "isPageFull");
+                return false;
+            }
+            return menus.get(activeMenuId).isPageFull();
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "isPageFull");
             return false;
@@ -199,16 +313,25 @@ public class PaginationServiceImpl implements PaginationService {
 
     @Override
     public void openPageForPlayer(UUID playerId, int pageNumber) {
+
         if (playerId == null) {
             handleExceptions.handle(new IllegalArgumentException("Player ID cannot be null"), this.getClass().getSimpleName(), "openPageForPlayer");
             return;
         }
+
         if (pageNumber < 0) {
             handleExceptions.handle(new IllegalArgumentException("Page number cannot be negative"), this.getClass().getSimpleName(), "openPageForPlayer");
             return;
         }
+
         try {
-            pagination.openPageForPlayer(playerId, pageNumber);
+            UUID activeMenuId = activeMenus.get(playerId);
+            if (activeMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("Player does not have an active menu"), this.getClass().getSimpleName(), "openPageForPlayer");
+                return;
+            }
+            menus.get(activeMenuId).openPageForPlayer(playerId, pageNumber);
+
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "openPageForPlayer");
         }
@@ -217,7 +340,11 @@ public class PaginationServiceImpl implements PaginationService {
     @Override
     public int getPageSize() {
         try {
-            return pagination.getPageSize();
+            UUID firstMenuId = menus.keySet().stream().findFirst().orElse(null);
+            if (firstMenuId == null) {
+                handleExceptions.handle(new IllegalArgumentException("No menus have been created"), this.getClass().getSimpleName(), "getPageSize");
+            }
+            return menus.get(firstMenuId).getPageSize();
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "getPageSize");
             return 0;

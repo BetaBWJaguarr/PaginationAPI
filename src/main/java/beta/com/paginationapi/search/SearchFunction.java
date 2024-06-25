@@ -2,6 +2,7 @@ package beta.com.paginationapi.search;
 
 import beta.com.paginationapi.itemmanager.service.ItemManagerService;
 import beta.com.paginationapi.page.service.PaginationService;
+import beta.com.paginationapi.search.utils.SearchUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -53,39 +54,25 @@ public class SearchFunction implements Listener {
         String message = event.getMessage().toLowerCase();
 
         if (currentSearchType == SearchType.NONE) {
-            if (message.equals("name") || message.equals("lore")) {
-                currentSearchType = message.equals("name") ? SearchType.NAME : SearchType.LORE;
-                event.getPlayer().sendMessage(ChatColor.GREEN + "Type the item " + currentSearchType.name().toLowerCase() + " in the chat.");
-            } else {
-                event.getPlayer().sendMessage(ChatColor.RED + "Invalid search type! Type 'name' or 'lore'.");
-            }
+            handleInitialSearchType(event, message);
         } else {
-            boolean found = searchItems(event.getPlayer(), message);
-            event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open the menu again!" : ChatColor.RED + "Result not found!");
-            resetSearch();
+            handleItemSearch(event, message);
         }
     }
 
-    private boolean searchItems(Player player, String query) {
-        for (int i = 0; i < itemManager.getItems().size(); i++) {
-            ItemStack item = itemManager.getItems().get(i);
-            if (item.hasItemMeta()) {
-                ItemMeta meta = item.getItemMeta();
-                String target = currentSearchType == SearchType.NAME ? meta.getDisplayName() : String.join(" ", meta.getLore());
-                if (target != null && isPartialMatch(ChatColor.stripColor(target).toLowerCase(), query)) {
-                    pagination.openPageForPlayer(player.getUniqueId(), i / pagination.getPageSize());
-                    return true;
-                }
-            }
+    private void handleInitialSearchType(AsyncPlayerChatEvent event, String message) {
+        if (message.equals("name") || message.equals("lore")) {
+            currentSearchType = message.equals("name") ? SearchType.NAME : SearchType.LORE;
+            event.getPlayer().sendMessage(ChatColor.GREEN + "Type the item " + currentSearchType.name().toLowerCase() + " in the chat.");
+        } else {
+            event.getPlayer().sendMessage(ChatColor.RED + "Invalid search type! Type 'name' or 'lore'.");
         }
-        return false;
     }
 
-    private boolean isPartialMatch(String str1, String str2) {
-        for (String word : str1.split(" ")) {
-            if (word.equals(str2)) return true;
-        }
-        return false;
+    private void handleItemSearch(AsyncPlayerChatEvent event, String query) {
+        boolean found = SearchUtils.searchItems(itemManager, pagination, currentSearchType, event.getPlayer(), query);
+        event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open the menu again!" : ChatColor.RED + "Result not found!");
+        resetSearch();
     }
 
     private void resetSearch() {

@@ -9,7 +9,9 @@ import java.util.UUID;
 
 public interface PaginationService {
 
-    Pagination createMenu(int pageSize, ItemManagerService itemManager);
+    ItemManagerService getItemManager();
+
+    Pagination createMenu(int pageSize, ItemManagerService itemManager,UUID menuID);
 
     Pagination getMenu(UUID menuId);
 

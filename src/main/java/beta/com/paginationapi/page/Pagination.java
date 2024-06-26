@@ -77,7 +77,6 @@ public class Pagination {
     }
 
     public void setActive(UUID playerId) {
-        playerPages.put(playerId, 0);
         activeStatus.put(playerId, true);
     }
 
@@ -86,7 +85,6 @@ public class Pagination {
     }
 
     public void close(UUID playerId) {
-        playerPages.remove(playerId);
         activeStatus.remove(playerId);
     }
 }

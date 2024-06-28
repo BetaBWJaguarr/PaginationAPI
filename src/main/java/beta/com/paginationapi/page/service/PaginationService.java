@@ -11,7 +11,7 @@ public interface PaginationService {
 
     ItemManagerService getItemManager();
 
-    Pagination createMenu(int pageSize, ItemManagerService itemManager,UUID menuID);
+    Pagination createMenu(int pageSize, ItemManagerService itemManager,UUID menuID,UUID managerID);
 
     Pagination getMenu(UUID menuId);
 

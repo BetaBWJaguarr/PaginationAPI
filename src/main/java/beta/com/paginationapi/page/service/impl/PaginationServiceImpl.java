@@ -25,7 +25,7 @@ public class PaginationServiceImpl implements PaginationService {
     }
 
     @Override
-    public Pagination createMenu(int pageSize, ItemManagerService itemManager,UUID menuId) {
+    public Pagination createMenu(int pageSize, ItemManagerService itemManager,UUID menuId,UUID managerID) {
 
         if (pageSize <= 0) {
             handleExceptions.handle(new IllegalArgumentException("Page size must be greater than 0"), this.getClass().getSimpleName(), "createMenu");
@@ -36,7 +36,7 @@ public class PaginationServiceImpl implements PaginationService {
         }
 
         try {
-            Pagination pagination = new Pagination(pageSize, itemManager);
+            Pagination pagination = new Pagination(pageSize, itemManager,managerID);
             menus.put(menuId, pagination);
             return pagination;
         } catch (Exception e) {

@@ -11,13 +11,15 @@ import java.util.UUID;
 public class PaginationListener {
 
     private final PaginationService pagination;
-    private final ItemManagerService itemManager;
+    private final ItemManagerService itemManagerService;
     private final HandleExceptions handleExceptions;
+    private final UUID managerId;
 
-    public PaginationListener(PaginationService pagination, ItemManagerService itemManager) {
+    public PaginationListener(PaginationService pagination, ItemManagerService itemManagerService, UUID managerId) {
         this.pagination = pagination;
-        this.itemManager = itemManager;
+        this.itemManagerService = itemManagerService;
         this.handleExceptions = new HandleExceptions();
+        this.managerId = managerId;
     }
 
     public void onPageAction(Player player, boolean nextPage) {
@@ -46,9 +48,9 @@ public class PaginationListener {
                 return;
             }
             if (addItem) {
-                itemManager.addItem(item);
+                itemManagerService.addItem(managerId, item);
             } else {
-                itemManager.removeItem(item);
+                itemManagerService.removeItem(managerId, item);
             }
         } catch (Exception e) {
             handleExceptions.handle(e, this.getClass().getSimpleName(), "onItemAction");

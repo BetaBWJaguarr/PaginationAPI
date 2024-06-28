@@ -3,12 +3,13 @@ package beta.com.paginationapi.itemmanager.service;
 import beta.com.paginationapi.itemmanager.ItemManager;
 import org.bukkit.inventory.ItemStack;
 import java.util.List;
+import java.util.UUID;
 
 public interface ItemManagerService {
-    ItemManager createItemManager();
-    ItemManager getItemManager();
-    void addItem(ItemStack item);
-    void removeItem(ItemStack item);
-    void clearItems();
-    List<ItemStack> getItems();
+    ItemManager createItemManager(UUID managerId);
+    ItemManager getItemManager(UUID managerId);
+    void addItem(UUID managerId, ItemStack item);
+    void removeItem(UUID managerId, ItemStack item);
+    void clearItems(UUID managerId);
+    List<ItemStack> getItems(UUID managerId);
 }

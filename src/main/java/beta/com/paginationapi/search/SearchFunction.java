@@ -21,10 +21,12 @@ public class SearchFunction implements Listener {
     private final ItemManagerService itemManager;
     private UUID playerInSearchMode;
     private SearchType currentSearchType = SearchType.NONE;
+    private UUID managerID;
 
-    public SearchFunction(PaginationService pagination, ItemManagerService itemManager) {
+    public SearchFunction(PaginationService pagination, ItemManagerService itemManager, UUID managerID) {
         this.pagination = pagination;
         this.itemManager = itemManager;
+        this.managerID = managerID;
     }
 
     public ItemStack createSearchButton() {
@@ -70,7 +72,7 @@ public class SearchFunction implements Listener {
     }
 
     private void handleItemSearch(AsyncPlayerChatEvent event, String query) {
-        boolean found = SearchUtils.searchItems(itemManager, pagination, currentSearchType, event.getPlayer(), query);
+        boolean found = SearchUtils.searchItems(itemManager, pagination, currentSearchType, event.getPlayer(), query,managerID);
         event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open the menu again!" : ChatColor.RED + "Result not found!");
         resetSearch();
     }

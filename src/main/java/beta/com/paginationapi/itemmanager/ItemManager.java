@@ -4,12 +4,19 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ItemManager {
-    private List<ItemStack> items;
+    private final UUID id;
+    private final List<ItemStack> items;
 
-    public ItemManager() {
+    public ItemManager(UUID id) {
+        this.id = id;
         this.items = new ArrayList<>();
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public void addItem(ItemStack item) {

@@ -24,8 +24,8 @@ public class PaginationListener {
 
     public void onPageAction(Player player, boolean nextPage) {
         try {
-            if (player == null) {
-                handleExceptions.handle(new NullPointerException("Player cannot be null"), this.getClass().getSimpleName(), "onPageAction");
+            if (player == null || player.getUniqueId() == null) {
+                handleExceptions.handle(new NullPointerException("Player or Player UUID cannot be null"), this.getClass().getSimpleName(), "onPageAction");
                 return;
             }
             UUID playerId = player.getUniqueId();

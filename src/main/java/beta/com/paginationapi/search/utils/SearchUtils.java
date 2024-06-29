@@ -9,12 +9,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class SearchUtils {
 
-    public static boolean searchItems(ItemManagerService itemManagerService, PaginationService pagination, SearchType currentSearchType, Player player, String query, UUID managerId) {
-        for (int i = 0; i < itemManagerService.getItems(managerId).size(); i++) {
-            ItemStack item = itemManagerService.getItems(managerId).get(i);
+    public static boolean searchItems(ItemManagerService itemManagerService, PaginationService pagination, SearchType currentSearchType, Player player, String query, UUID managerId) throws ExecutionException, InterruptedException {
+        for (int i = 0; i < itemManagerService.getItems(managerId).get().size(); i++) {
+            ItemStack item = itemManagerService.getItems(managerId).get().get(i);
             if (item.hasItemMeta()) {
                 ItemMeta meta = item.getItemMeta();
                 String target = currentSearchType == SearchType.NAME ? meta.getDisplayName() : String.join(" ", meta.getLore());

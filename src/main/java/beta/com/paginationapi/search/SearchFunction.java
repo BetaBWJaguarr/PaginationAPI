@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class SearchFunction implements Listener {
 
@@ -49,7 +50,7 @@ public class SearchFunction implements Listener {
     }
 
     @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) throws ExecutionException, InterruptedException {
         if (playerInSearchMode == null || !event.getPlayer().getUniqueId().equals(playerInSearchMode)) return;
 
         event.setCancelled(true);
@@ -71,7 +72,7 @@ public class SearchFunction implements Listener {
         }
     }
 
-    private void handleItemSearch(AsyncPlayerChatEvent event, String query) {
+    private void handleItemSearch(AsyncPlayerChatEvent event, String query) throws ExecutionException, InterruptedException {
         boolean found = SearchUtils.searchItems(itemManager, pagination, currentSearchType, event.getPlayer(), query,managerID);
         event.getPlayer().sendMessage(found ? ChatColor.GREEN + "Result found. Please open the menu again!" : ChatColor.RED + "Result not found!");
         resetSearch();

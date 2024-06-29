@@ -1,12 +1,14 @@
 package beta.com.paginationapi.page;
 
 import beta.com.paginationapi.itemmanager.service.ItemManagerService;
+import beta.com.paginationapi.page.utils.PaginationUtils;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class Pagination {
     private final int pageSize;
@@ -21,17 +23,9 @@ public class Pagination {
         this.managerId = managerId;
     }
 
-    private int getPageStart(int page) {
-        return page * pageSize;
-    }
-
-    private int getPageEnd(int page) {
-        return Math.min((page + 1) * pageSize, itemManagerService.getItems(managerId).size());
-    }
-
-    public List<ItemStack> getCurrentPageItems(UUID playerId) {
+    public List<ItemStack> getCurrentPageItems(UUID playerId) throws ExecutionException, InterruptedException {
         int page = playerPages.getOrDefault(playerId, 0);
-        return itemManagerService.getItems(managerId).subList(getPageStart(page), getPageEnd(page));
+        return PaginationUtils.getItemsForPage(itemManagerService, managerId, page, pageSize);
     }
 
     public void rememberPages(UUID playerId, boolean remember) {
@@ -46,32 +40,38 @@ public class Pagination {
         return playerPages.getOrDefault(playerId, 0);
     }
 
-    public void nextPage(UUID playerId) {
-        if (hasNextPage(playerId)) playerPages.put(playerId, getPageForPlayer(playerId) + 1);
+    public void nextPage(UUID playerId) throws ExecutionException, InterruptedException {
+        if (PaginationUtils.hasNextPage(getPageForPlayer(playerId), pageSize, itemManagerService.getItems(managerId).get().size())) {
+            playerPages.put(playerId, getPageForPlayer(playerId) + 1);
+        }
     }
 
     public void previousPage(UUID playerId) {
-        if (hasPreviousPage(playerId)) playerPages.put(playerId, getPageForPlayer(playerId) - 1);
+        if (PaginationUtils.hasPreviousPage(getPageForPlayer(playerId))) {
+            playerPages.put(playerId, getPageForPlayer(playerId) - 1);
+        }
     }
 
-    public boolean hasNextPage(UUID playerId) {
-        return getPageEnd(getPageForPlayer(playerId)) < itemManagerService.getItems(managerId).size();
+    public boolean hasNextPage(UUID playerId) throws ExecutionException, InterruptedException {
+        return PaginationUtils.hasNextPage(getPageForPlayer(playerId), pageSize, itemManagerService.getItems(managerId).get().size());
     }
 
     public boolean hasPreviousPage(UUID playerId) {
-        return getPageForPlayer(playerId) > 0;
+        return PaginationUtils.hasPreviousPage(getPageForPlayer(playerId));
     }
 
-    public boolean isPageEmpty() {
-        return itemManagerService.getItems(managerId).subList(getPageStart(0), getPageEnd(0)).isEmpty();
+    public boolean isPageEmpty() throws ExecutionException, InterruptedException {
+        return PaginationUtils.isPageEmpty(itemManagerService, managerId, pageSize);
     }
 
-    public boolean isPageFull() {
-        return itemManagerService.getItems(managerId).subList(getPageStart(0), getPageEnd(0)).size() == pageSize;
+    public boolean isPageFull() throws ExecutionException, InterruptedException {
+        return PaginationUtils.isPageFull(itemManagerService, managerId, pageSize);
     }
 
-    public void openPageForPlayer(UUID playerId, int pageNumber) {
-        if (pageNumber >= 0 && getPageStart(pageNumber) < itemManagerService.getItems(managerId).size()) setPageForPlayer(playerId, pageNumber);
+    public void openPageForPlayer(UUID playerId, int pageNumber) throws ExecutionException, InterruptedException {
+        if (pageNumber >= 0 && PaginationUtils.getPageStart(pageNumber, pageSize) < itemManagerService.getItems(managerId).get().size()) {
+            setPageForPlayer(playerId, pageNumber);
+        }
     }
 
     public int getPageSize() {

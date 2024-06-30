@@ -8,6 +8,27 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
+/**
+ * The PaginationListener class is responsible for handling actions related to pagination and item management in the application.
+ * It uses instances of PaginationService and ItemManagerService to perform these actions.
+ *
+ * The class is identified by a UUID and uses an instance of HandleExceptions to handle any exceptions that occur during the execution of its methods.
+ *
+ * The onPageAction method handles actions related to pagination. It checks if the player is null or if the player's UUID is null, and if so, it handles the exception and returns. If the player is valid, it checks if there is a next or previous page (depending on the nextPage parameter) and if so, it navigates to that page.
+ *
+ * The onItemAction method handles actions related to items. It checks if the item is null, and if so, it handles the exception and returns. If the item is valid, it checks the addItem parameter to determine whether to add or remove the item, and performs the corresponding action.
+ *
+ * Usage:
+ * PaginationService pagination = ... // get an instance of PaginationService
+ * ItemManagerService itemManagerService = ... // get an instance of ItemManagerService
+ * UUID managerId = ... // get a managerId
+ * PaginationListener paginationListener = new PaginationListener(pagination, itemManagerService, managerId);
+ * Player player = ... // get a Player
+ * ItemStack item = ... // get an ItemStack
+ * paginationListener.onPageAction(player, true); // navigate to the next page
+ * paginationListener.onItemAction(item, true); // add the item
+ */
+
 public class PaginationListener {
 
     private final PaginationService pagination;

@@ -10,6 +10,30 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * The Pagination class manages the pagination system for displaying items to individual players identified by UUIDs.
+ *
+ * This class maintains player-specific pagination states using maps:
+ * - Player pages map: Tracks the current page for each player.
+ * - Active status map: Indicates whether a player is currently active.
+ *
+ * Pagination relies on the ItemManagerService to handle item management:
+ * - Items are fetched and organized into pages based on a specified page size.
+ *
+ * Key functionalities include:
+ * - Retrieving items on the current page for a player, using PaginationUtils for index calculations.
+ * - Navigating between pages by updating player pages and checking for next or previous pages.
+ * - Checking if a page is empty or full based on item availability and page size.
+ * - Opening a specific page for a player after validating the page number.
+ * - Providing access to the configured page size.
+ * - Managing player active status updates in the active status map.
+ *
+ * The Pagination class supports multiple managers identified by manager IDs within the ItemManagerService,
+ * allowing simultaneous management of different item sets.
+ *
+ * Overall, it offers a robust implementation for handling paginated views of items across multiple players.
+ */
+
 public class Pagination {
     private final int pageSize;
     private final ItemManagerService itemManagerService;

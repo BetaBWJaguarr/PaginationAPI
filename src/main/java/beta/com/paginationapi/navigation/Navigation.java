@@ -8,6 +8,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.UUID;
 
+/**
+ * The Navigation class is responsible for creating navigation buttons for the pagination system in the application.
+ * It interacts with the PaginationService to determine the state of the pagination (whether there are next or previous pages) and creates the appropriate navigation buttons.
+ * It also uses a HandleExceptions instance to handle any exceptions that occur during these operations, ensuring that the application can recover gracefully from errors.
+ */
+
 public class Navigation {
     private final PaginationService pagination;
     private final HandleExceptions handleExceptions;

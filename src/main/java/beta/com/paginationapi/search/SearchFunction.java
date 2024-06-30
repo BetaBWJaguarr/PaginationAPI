@@ -16,6 +16,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * The SearchFunction class is a listener that handles search functionality within a pagination system.
+ *
+ * It listens for inventory click events and player chat events to facilitate a search operation.
+ * The search can be performed based on item name or lore within the items managed by an ItemManagerService.
+ * The results of the search are navigated using a PaginationService.
+ *
+ * The class maintains the state of the search operation, including the player in search mode, the current search type, and the manager ID.
+ */
+
 public class SearchFunction implements Listener {
 
     private final PaginationService pagination;

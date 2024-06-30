@@ -11,6 +11,25 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Utility class for searching items within a pagination system.
+ * <p>
+ * This class provides methods to search for items based on a specified search query,
+ * using the provided ItemManagerService to retrieve items and PaginationService for navigation.
+ * It supports searching by item name or lore based on the current search type.
+ * <p>
+ * The search is performed by iterating through items retrieved from the ItemManagerService
+ * and comparing the target (item name or lore) with the query using partial matching.
+ * If a match is found, it opens the corresponding page for the player using PaginationService.
+ * <p>
+ * This class is designed for use in Bukkit/Spigot plugins, targeting players identified by UUIDs
+ * and managing items associated with specific manager IDs.
+ *
+ * @see SearchType       Enum specifying the type of search (by item name or lore).
+ * @see ItemManagerService Service for managing items associated with a manager ID.
+ * @see PaginationService Service for handling pagination and page navigation.
+ */
+
 public class SearchUtils {
 
     public static boolean searchItems(ItemManagerService itemManagerService, PaginationService pagination, SearchType currentSearchType, Player player, String query, UUID managerId) throws ExecutionException, InterruptedException {

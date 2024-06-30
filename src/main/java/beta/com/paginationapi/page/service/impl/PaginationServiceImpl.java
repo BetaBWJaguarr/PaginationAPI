@@ -8,6 +8,38 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
+/**
+ * The PaginationServiceImpl class is an implementation of the PaginationService interface.
+ * It provides a concrete implementation of the pagination system in the application.
+ *
+ * The class maintains a map of menus, each identified by a UUID, and a map of active menus for each player.
+ * It uses an instance of ItemManagerService to manage the items that are displayed in the menus.
+ *
+ * The class provides methods for creating menus, getting and setting active menus, navigating through pages, and querying page states.
+ * It also handles exceptions that occur during these operations, ensuring that the application can recover gracefully from errors.
+ *
+ * The PaginationServiceImpl class is a key part of the application's pagination system, providing the functionality needed to manage multiple menus and player states simultaneously.
+ * getItemManager: Returns the ItemManagerService instance used by this class.
+ *
+ * createMenu: Creates a new Pagination menu with the specified page size, item manager, menu ID, and manager ID. It also handles exceptions related to invalid arguments and other issues.
+ * getMenu: Retrieves a Pagination menu by its ID. It also handles exceptions related to invalid arguments and other issues.
+ * setActiveMenu: Sets the active menu for a player. It also handles exceptions related to invalid arguments and other issues.
+ * closeMenu: Closes the active menu for a player. It also handles exceptions related to invalid arguments and other issues.
+ * getActiveMenu: Retrieves the active menu ID for a player. It also handles exceptions related to invalid arguments and other issues.
+ * getCurrentPageItems: Retrieves the items on the current page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * rememberPages: Sets whether the system should remember the pages for a player. It also handles exceptions related to invalid arguments and other issues.
+ * setPageForPlayer: Sets the current page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * getPageForPlayer: Retrieves the current page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * nextPage: Navigates to the next page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * previousPage: Navigates to the previous page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * hasNextPage: Checks if there is a next page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * hasPreviousPage: Checks if there is a previous page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * isPageEmpty: Checks if the current page for a player is empty. It also handles exceptions related to invalid arguments and other issues.
+ * isPageFull: Checks if the current page for a player is full. It also handles exceptions related to invalid arguments and other issues.
+ * openPageForPlayer: Opens a specific page for a player. It also handles exceptions related to invalid arguments and other issues.
+ * getPageSize: Retrieves the page size. It also handles exceptions related to invalid arguments and other issues.
+ */
+
 public class PaginationServiceImpl implements PaginationService {
 
     private final Map<UUID, Pagination> menus = new HashMap<>();

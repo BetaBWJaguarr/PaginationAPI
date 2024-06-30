@@ -5,12 +5,28 @@ import beta.com.paginationapi.errorevents.HandleExceptions;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * The SearchFunction class is a listener that handles search functionality within a pagination system.
+ *
+ * It listens for inventory click events and player chat events to facilitate a search operation.
+ * The search can be performed based on item name or lore within the items managed by an ItemManagerService.
+ * The results of the search are navigated using a PaginationService.
+ *
+ * The class maintains the state of the search operation, including the player in search mode, the current search type, and the manager ID.
+ */
+
 public class SortFilterManager<T> {
-    private final HandleExceptions handleExceptions = new HandleExceptions();
+    private final HandleExceptions handleExceptions;
+
+    public SortFilterManager() {
+        this.handleExceptions = new HandleExceptions();
+    }
 
     private boolean validateList(List<T> items, String methodName) {
         if (items == null) {
@@ -137,5 +153,48 @@ public class SortFilterManager<T> {
             return false;
         }
         return handleOperation(list -> list.stream().noneMatch(predicate), items, "noneMatch", false);
+    }
+
+    public List<T> distinct(List<T> items) {
+        if (items == null) {
+            handleExceptions.handle(new IllegalArgumentException("Items cannot be null"), this.getClass().getSimpleName(), "distinct");
+            return Collections.emptyList();
+        }
+        return handleOperation(
+                list -> list.stream().distinct().collect(Collectors.toList()),
+                items, "distinct", Collections.emptyList()
+        );
+    }
+
+
+    public <R> List<R> map(List<T> items, Function<T, R> mapper) {
+        if (items == null) {
+            handleExceptions.handle(new IllegalArgumentException("Items cannot be null"), this.getClass().getSimpleName(), "map");
+            return Collections.emptyList();
+        }
+        if (mapper == null) {
+            handleExceptions.handle(new IllegalArgumentException("Mapper function cannot be null"), this.getClass().getSimpleName(), "map");
+            return Collections.emptyList();
+        }
+        return handleOperation(
+                list -> list.stream().map(mapper).collect(Collectors.toList()),
+                items, "map", Collections.emptyList()
+        );
+    }
+
+
+    public <R> R reduce(List<T> items, R identity, BiFunction<R, T, R> accumulator) {
+        if (items == null) {
+            handleExceptions.handle(new IllegalArgumentException("Items cannot be null"), this.getClass().getSimpleName(), "reduce");
+            return identity;
+        }
+        if (accumulator == null) {
+            handleExceptions.handle(new IllegalArgumentException("Accumulator function cannot be null"), this.getClass().getSimpleName(), "reduce");
+            return identity;
+        }
+        return handleOperation(
+                list -> list.stream().reduce(identity, accumulator, (a, b) -> a),
+                items, "reduce", identity
+        );
     }
 }

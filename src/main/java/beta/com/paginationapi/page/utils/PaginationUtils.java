@@ -7,6 +7,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * The PaginationUtils class provides utility methods for managing pagination in the application.
+ *
+ * It provides methods for calculating the start and end indices of a page, checking if there are next or previous pages, and retrieving the items for a specific page.
+ * These methods are designed to work with an instance of ItemManagerService, which manages the items that are displayed in the pages.
+ *
+ * The class also provides methods for checking if a page is empty or full, which can be useful for managing the state of the pagination system.
+ *
+ * The methods in this class are static, meaning they can be called without creating an instance of the class. This makes them easy to use throughout the application.
+ */
+
 public class PaginationUtils {
     public static int getPageStart(int page, int pageSize) {
         return page * pageSize;

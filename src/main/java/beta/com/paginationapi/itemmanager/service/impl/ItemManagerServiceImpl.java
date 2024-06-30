@@ -10,6 +10,31 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * The ItemManagerServiceImpl class is an implementation of the ItemManagerService interface.
+ * It provides methods for managing items in the application, each returning a CompletableFuture for asynchronous operation.
+ *
+ * The class maintains a ConcurrentMap of ItemManagers, each identified by a UUID.
+ * It also uses an instance of HandleExceptions to handle any exceptions that occur during the execution of its methods.
+ *
+ * The createItemManager method creates a new ItemManager and adds it to the map.
+ * The getItemManager method retrieves an existing ItemManager from the map.
+ * The addItem method adds an item to a specified ItemManager.
+ * The removeItem method removes an item from a specified ItemManager.
+ * The clearItems method clears all items from a specified ItemManager.
+ * The getItems method retrieves all items from a specified ItemManager.
+ *
+ * Each method checks for null parameters and handles exceptions by logging them and completing the returned CompletableFuture exceptionally.
+ *
+ * Usage:
+ * ItemManagerService itemManagerService = new ItemManagerServiceImpl();
+ * UUID managerId = ... // get a managerId
+ * ItemStack item = ... // get an ItemStack
+ * itemManagerService.addItem(managerId, item).thenAccept(void -> {
+ *     // item has been added
+ * });
+ */
+
 public class ItemManagerServiceImpl implements ItemManagerService {
     private final ConcurrentMap<UUID, ItemManager> itemManagers = new ConcurrentHashMap<>();
     private final HandleExceptions handleExceptions = new HandleExceptions();

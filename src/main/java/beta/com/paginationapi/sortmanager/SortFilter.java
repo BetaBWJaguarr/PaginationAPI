@@ -8,9 +8,39 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class SortFilter<T> {
-    private final HandleExceptions handleExceptions = new HandleExceptions();
+/**
+ * Utility class for sorting and filtering lists of objects using comparators and predicates.
+ * <p>
+ * This class provides methods to perform sorting, filtering, or combined sorting and filtering operations on lists of objects.
+ * It handles exceptions during these operations and logs them using an instance of HandleExceptions.
+ * <p>
+ * Sorting Methods:
+ * - {@link #sort(List, Comparator)}: Sorts the list using a single comparator.
+ * - {@link #sort(List, Comparator...)}: Sorts the list using multiple comparators combined sequentially.
+ * <p>
+ * Filtering Methods:
+ * - {@link #filter(List, Predicate)}: Filters the list based on a single predicate.
+ * - {@link #filter(List, Predicate...)}: Filters the list based on multiple predicates combined using logical AND.
+ * <p>
+ * Combined Sorting and Filtering Methods:
+ * - {@link #filterAndSort(List, Predicate, Comparator)}: Filters the list based on a predicate and then sorts it using a comparator.
+ * - {@link #filterAndSort(List, Predicate...)}: Filters the list based on multiple predicates combined using logical AND.
+ * <p>
+ * The class uses Java Streams and Collectors to process lists efficiently.
+ * It returns an empty list and logs exceptions using HandleExceptions if input parameters are null or if exceptions occur during processing.
+ *
+ * @param <T> the type of objects in the list
+ * @see Comparator Functional interface for comparing objects
+ * @see Predicate Functional interface for defining a condition on objects
+ * @see HandleExceptions Utility class for handling and logging exceptions
+ */
 
+public class SortFilter<T> {
+    private final HandleExceptions handleExceptions;
+
+    public SortFilter() {
+        this.handleExceptions = new HandleExceptions();
+    }
 
     public List<T> sort(List<T> items, Comparator<T> comparator) {
         if (items == null || comparator == null) {
@@ -167,4 +197,31 @@ public class SortFilter<T> {
             return Collections.emptyList();
         }
     }
+
+    public List<T> reverseSort(List<T> items, Comparator<T> comparator) {
+        if (items == null || comparator == null) {
+            handleExceptions.handle(new IllegalArgumentException("Items or comparator cannot be null"), this.getClass().getSimpleName(), "reverseSort");
+            return Collections.emptyList();
+        }
+
+        try {
+            return items.stream()
+                    .sorted(comparator.reversed())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            handleExceptions.handle(e, this.getClass().getSimpleName(), "reverseSort");
+            return Collections.emptyList();
+        }
+    }
+    public List<T> skip(List<T> items, int start) {
+        if (items == null || start < 0) {
+            handleExceptions.handle(new IllegalArgumentException("Items cannot be null and start must be non-negative"), this.getClass().getSimpleName(), "skip");
+            return Collections.emptyList();
+        }
+
+        return items.stream()
+                .skip(start)
+                .collect(Collectors.toList());
+    }
+
 }

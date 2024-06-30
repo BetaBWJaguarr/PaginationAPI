@@ -7,6 +7,16 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The PaginationService interface defines the contract for a service that manages pagination in the application.
+ * It provides methods for creating menus, getting and setting active menus, navigating through pages, and querying page states.
+ *
+ * The interface is designed to work with the ItemManagerService, which manages items that are displayed in the pages.
+ * It also uses UUIDs to identify menus and players, providing a way to manage multiple menus and player states simultaneously.
+ *
+ * The methods in this interface allow the application to create a flexible and robust pagination system, where each player can have their own active menu and navigate through it independently.
+ */
+
 public interface PaginationService {
 
     ItemManagerService getItemManager();

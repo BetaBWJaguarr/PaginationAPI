@@ -37,30 +37,20 @@ import java.util.stream.Collectors;
 
 public class SortFilter<T> {
     private final HandleExceptions handleExceptions;
+    private final Helper<T> helper;
 
     public SortFilter() {
         this.handleExceptions = new HandleExceptions();
+        this.helper = new Helper<>(handleExceptions);
     }
 
     public List<T> sort(List<T> items, Comparator<T> comparator) {
-        if (items == null || comparator == null) {
-            handleExceptions.handle(new IllegalArgumentException("Items or comparator cannot be null"), this.getClass().getSimpleName(), "sort");
-            return Collections.emptyList();
-        }
-
-        try {
-            return items.stream()
-                    .sorted(comparator)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            handleExceptions.handle(e, this.getClass().getSimpleName(), "sort");
-            return Collections.emptyList();
-        }
+        return helper.sort(items, comparator);
     }
 
     @SafeVarargs
     public final List<T> sort(List<T> items, Comparator<T>... comparators) {
-        if (items == null || comparators == null) {
+        if (!helper.validateList(items, "sort") || comparators == null) {
             handleExceptions.handle(new IllegalArgumentException("Items or comparators cannot be null"), this.getClass().getSimpleName(), "sort");
             return Collections.emptyList();
         }
@@ -85,24 +75,12 @@ public class SortFilter<T> {
     }
 
     public List<T> filter(List<T> items, Predicate<T> predicate) {
-        if (items == null || predicate == null) {
-            handleExceptions.handle(new IllegalArgumentException("Items or predicate cannot be null"), this.getClass().getSimpleName(), "filter");
-            return Collections.emptyList();
-        }
-
-        try {
-            return items.stream()
-                    .filter(predicate)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            handleExceptions.handle(e, this.getClass().getSimpleName(), "filter");
-            return Collections.emptyList();
-        }
+        return helper.filter(items, predicate);
     }
 
     @SafeVarargs
     public final List<T> filter(List<T> items, Predicate<T>... predicates) {
-        if (items == null || predicates == null) {
+        if (!helper.validateList(items, "filter") || predicates == null) {
             handleExceptions.handle(new IllegalArgumentException("Items or predicates cannot be null"), this.getClass().getSimpleName(), "filter");
             return Collections.emptyList();
         }
@@ -126,7 +104,7 @@ public class SortFilter<T> {
     }
 
     public List<T> filterAndSort(List<T> items, Predicate<T> predicate, Comparator<T> comparator) {
-        if (items == null || predicate == null || comparator == null) {
+        if (!helper.validateList(items, "filterAndSort") || predicate == null || comparator == null) {
             handleExceptions.handle(new IllegalArgumentException("Items, predicate, or comparator cannot be null"), this.getClass().getSimpleName(), "filterAndSort");
             return Collections.emptyList();
         }
@@ -170,7 +148,7 @@ public class SortFilter<T> {
 
     @SafeVarargs
     public final List<T> filterAndSort(List<T> items, Predicate<T> predicate, Comparator<T>... comparators) {
-        if (items == null || predicate == null || comparators == null) {
+        if (!helper.validateList(items, "filterAndSort") || predicate == null || comparators == null) {
             handleExceptions.handle(new IllegalArgumentException("Items, predicate, or comparators cannot be null"), this.getClass().getSimpleName(), "filterAndSort");
             return Collections.emptyList();
         }
@@ -199,7 +177,7 @@ public class SortFilter<T> {
     }
 
     public List<T> reverseSort(List<T> items, Comparator<T> comparator) {
-        if (items == null || comparator == null) {
+        if (!helper.validateList(items, "reverseSort") || comparator == null) {
             handleExceptions.handle(new IllegalArgumentException("Items or comparator cannot be null"), this.getClass().getSimpleName(), "reverseSort");
             return Collections.emptyList();
         }
@@ -213,8 +191,9 @@ public class SortFilter<T> {
             return Collections.emptyList();
         }
     }
+
     public List<T> skip(List<T> items, int start) {
-        if (items == null || start < 0) {
+        if (!helper.validateList(items, "skip") || start < 0) {
             handleExceptions.handle(new IllegalArgumentException("Items cannot be null and start must be non-negative"), this.getClass().getSimpleName(), "skip");
             return Collections.emptyList();
         }
@@ -223,5 +202,4 @@ public class SortFilter<T> {
                 .skip(start)
                 .collect(Collectors.toList());
     }
-
 }
